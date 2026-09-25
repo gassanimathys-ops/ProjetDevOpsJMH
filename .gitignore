@@ -1,0 +1,8 @@
+.env
+*.pem
+*.key
+terraform/azure-aks/.terraform/
+terraform/azure-aks/*.tfstate*
+ansible/inventory.ini
+docs/captures/*.png
+docs/captures/*.jpg
