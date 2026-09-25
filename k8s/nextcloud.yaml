@@ -1,0 +1,67 @@
+apiVersion: v1
+kind: Namespace
+metadata: {name: jmh-prod}
+---
+apiVersion: v1
+kind: Secret
+metadata: {name: nextcloud-db, namespace: jmh-prod}
+type: Opaque
+stringData:
+  MYSQL_ROOT_PASSWORD: ChangeMeRoot
+  MYSQL_PASSWORD: ChangeMeNextcloud
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: mariadb, namespace: jmh-prod}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: mariadb}}
+  template:
+    metadata: {labels: {app: mariadb}}
+    spec:
+      containers:
+      - name: mariadb
+        image: mariadb:11.4
+        env:
+        - {name: MARIADB_ROOT_PASSWORD, valueFrom: {secretKeyRef: {name: nextcloud-db, key: MYSQL_ROOT_PASSWORD}}}
+        - {name: MARIADB_DATABASE, value: nextcloud}
+        - {name: MARIADB_USER, value: nextcloud}
+        - {name: MARIADB_PASSWORD, valueFrom: {secretKeyRef: {name: nextcloud-db, key: MYSQL_PASSWORD}}}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: mariadb, namespace: jmh-prod}
+spec:
+  selector: {app: mariadb}
+  ports: [{port: 3306, targetPort: 3306}]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: nextcloud, namespace: jmh-prod}
+spec:
+  replicas: 2
+  selector: {matchLabels: {app: nextcloud}}
+  template:
+    metadata: {labels: {app: nextcloud}}
+    spec:
+      containers:
+      - name: nextcloud
+        image: nextcloud:31-apache
+        env:
+        - {name: MYSQL_HOST, value: mariadb}
+        - {name: MYSQL_DATABASE, value: nextcloud}
+        - {name: MYSQL_USER, value: nextcloud}
+        - {name: MYSQL_PASSWORD, valueFrom: {secretKeyRef: {name: nextcloud-db, key: MYSQL_PASSWORD}}}
+        - {name: NEXTCLOUD_TRUSTED_DOMAINS, value: '*'}
+        ports: [{containerPort: 80}]
+        resources:
+          requests: {cpu: 250m, memory: 512Mi}
+          limits: {cpu: '1', memory: 1Gi}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: nextcloud, namespace: jmh-prod}
+spec:
+  type: LoadBalancer
+  selector: {app: nextcloud}
+  ports: [{port: 80, targetPort: 80}]

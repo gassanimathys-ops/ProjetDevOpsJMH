@@ -1,0 +1,22 @@
+services:
+  db:
+    image: mariadb:10.11
+    environment:
+      MARIADB_ROOT_PASSWORD: ChangeMeRoot
+      MARIADB_DATABASE: testlink
+      MARIADB_USER: testlink
+      MARIADB_PASSWORD: ChangeMeTestlink
+    volumes: [testlink_db:/var/lib/mysql]
+  testlink:
+    image: bitnami/testlink:1.9.20
+    depends_on: [db]
+    ports: ["8082:8080"]
+    environment:
+      TESTLINK_DATABASE_HOST: db
+      TESTLINK_DATABASE_NAME: testlink
+      TESTLINK_DATABASE_USER: testlink
+      TESTLINK_DATABASE_PASSWORD: ChangeMeTestlink
+      TESTLINK_USERNAME: admin
+      TESTLINK_PASSWORD: ChangeMeAdmin
+volumes:
+  testlink_db:
