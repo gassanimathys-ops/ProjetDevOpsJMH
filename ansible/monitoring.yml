@@ -1,0 +1,19 @@
+---
+- name: Préparer monitoring
+  hosts: monitoring
+  become: true
+  tasks:
+    - name: Installer Docker
+      ansible.builtin.apt:
+        name: [docker.io, docker-compose-plugin]
+        state: present
+        update_cache: true
+    - name: Activer Docker
+      ansible.builtin.service: {name: docker, state: started, enabled: true}
+    - name: Créer dossier
+      ansible.builtin.file: {path: /opt/zabbix, state: directory, mode: '0755'}
+    - name: Déployer compose
+      ansible.builtin.copy:
+        src: ../docker/zabbix/docker-compose.yml
+        dest: /opt/zabbix/docker-compose.yml
+        mode: '0644'
