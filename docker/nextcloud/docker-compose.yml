@@ -16,7 +16,7 @@ services:
       timeout: 5s
       retries: 10
   nextcloud:
-    image: nextcloud:31-apache
+    image: nextcloud:32-apache
     container_name: jmh-nextcloud
     restart: unless-stopped
     depends_on:
