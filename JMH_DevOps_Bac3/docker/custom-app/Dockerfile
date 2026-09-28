@@ -3,5 +3,5 @@ RUN apt-get update && apt-get install -y --no-install-recommends default-mysql-c
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www/html
 COPY composer.json .
-RUN composer install --no-interaction --prefer-dist || true
+RUN composer install --no-interaction --prefer-dist
 COPY src/ .
