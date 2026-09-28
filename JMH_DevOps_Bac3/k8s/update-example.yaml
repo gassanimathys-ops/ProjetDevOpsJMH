@@ -1,0 +1,4 @@
+# Mise à jour et rollback
+# kubectl -n jmh-prod set image deployment/nextcloud nextcloud=nextcloud:31-apache
+# kubectl -n jmh-prod rollout status deployment/nextcloud
+# kubectl -n jmh-prod rollout undo deployment/nextcloud

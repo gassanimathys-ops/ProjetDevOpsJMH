@@ -1,0 +1,18 @@
+services:
+  db:
+    image: mysql:8.4
+    environment:
+      MYSQL_ROOT_PASSWORD: ChangeMeRoot
+      MYSQL_DATABASE: demo
+      MYSQL_USER: demo
+      MYSQL_PASSWORD: ChangeMeDemo
+    volumes: [db_data:/var/lib/mysql]
+  app:
+    build: .
+    image: jmh/php-composer-mysql:1.0
+    depends_on: [db]
+    ports: ["8090:80"]
+    cpus: 2
+    mem_limit: 510m
+volumes:
+  db_data:

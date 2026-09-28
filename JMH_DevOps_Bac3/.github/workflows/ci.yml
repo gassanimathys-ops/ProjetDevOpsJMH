@@ -1,0 +1,15 @@
+name: JMH DevOps CI
+on: [push, pull_request]
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image
+        run: docker build -t jmh/php-composer-mysql:ci ./docker/custom-app
+      - name: Smoke test
+        run: |
+          docker run -d --name jmh-ci -p 8090:80 jmh/php-composer-mysql:ci
+          sleep 5
+          curl -f http://127.0.0.1:8090
+          docker rm -f jmh-ci
